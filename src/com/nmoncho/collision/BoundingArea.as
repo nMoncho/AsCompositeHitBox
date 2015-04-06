@@ -105,6 +105,17 @@ package com.nmoncho.collision {
 		public function isPointInside(x:Number, y:Number):Boolean {
 			return false;
 		}
+		
+		/**
+		 * Override this method to handle same BoundingArea class collisions.
+		 * Remember to cast to proper class (sorry don't have generics).
+		 * @param target object to test collision.
+		 * @param x virtual x coordinate of THIS bounding area. In case you want an offset. (ie: x + 10)
+		 * @param y virtual y coordinate of THIS bounding area.
+		 */
+		internal function collidesClass(target:BoundingArea, x:Number, y:Number) : Boolean {
+			return false;
+		}
 
 		/**
 		 * Tests if the <b>target</b> collides with the bounding area with the specified <b>name</b>.
@@ -113,9 +124,9 @@ package com.nmoncho.collision {
 		 * @param target object to test collision.
 		 * @param x virtual x coordinate of THIS bounding area. In case you want an offset. (ie: x + 10)
 		 * @param y virtual y coordinate of THIS bounding area.
-		 * @return returns the bounding area if collided.
+		 * @return returns a collision object if collided.
 		 */
-		public function collidesWithName(name:String, target:Object, x:Number = NaN, y:Number = NaN):Collision {
+		public function collidesWithName(name:String, target:Object, x:Number = NaN, y:Number = NaN) : Collision {
 			var boundingArea:BoundingArea = getBoundingByName(name);
 			return boundingArea != null ? boundingArea.collides(target, x, y, false) : null;
 		}
@@ -125,48 +136,60 @@ package com.nmoncho.collision {
 		 * @param target object to check against.
 		 * @param x virtual x coordinate of THIS bounding area. In case you want an offset. (ie: x + 10)
 		 * @param y virtual y coordinate of THIS bounding area.
-		 * @return returns the bounding area that first detected a colision, null otherwise. 
+		 * @return returns a collision object if collided, null otherwise. 
 		 */
-		public function collides(target:Object, x:Number = NaN, y:Number = NaN, checkChildren:Boolean = true):Collision {
-			var collided:BoundingArea, ba:BoundingArea, childCollided:BoundingArea;
-			var tempHitBox:HitBox; // TODO reuse tempHitBox on recursion
-			var entity:Entity;
-			var entities:Array;
+		public function collides(target:Object, x:Number = NaN, y:Number = NaN, checkChildren:Boolean = true) : Collision {
+			var collided:Boolean;
+			var collision:Collision;
 			var hierachicalTest:Boolean = !isLeaf;
+			// TODO check on all impl that uses virtual coords
 			x = isNaN(x) ? this.x : x;
 			y = isNaN(y) ? this.y : y;
 			if (target is String && validEntityTypeCollisionCheck(String(target))) { // do a by type collision check
-				collidesType(String(target));
+				collision = collidesType(String(target), x, y);
+				collided =  collision && collision.collides;
+				target = collision.collider;
 			} else if (target is Entity) {
-				tempHitBox = HitBox.createTempHitBoxForEntity(Entity(target));
-				collided = collidesBoundingArea(tempHitBox, x, y);
+				target = HitBox.createHitBoxForEntity(Entity(target)); // TODO reuse tempHitBox on game loop recursion (cache between deltas)
+				collided = collidesBoundingArea(HitBox(target), x, y);
 			} else if (target is BoundingArea) {
 				collided = collidesBoundingArea(BoundingArea(target), x, y);
 				hierachicalTest = !this.isLeaf || !BoundingArea(target).isLeaf;
 			} else if (target is Point) {
-				collided = isPointInside(Point(target).x, Point(target).y) ? this : null;
+				collided = isPointInside(Point(target).x, Point(target).y);
 			} else {
 				throw new Error("Not supported target type");
 			}
 			
-			if (collided && checkChildren && hierachicalTest) {
+			if (collided && checkChildren && hierachicalTest) { // check on children
 				var childrenA:Array = isLeaf ? [this] : children, 
 					childrenB:Array = BoundingArea(target).isLeaf ? [target] : BoundingArea(target).children;
-				collided = collidesChildren(childrenA, childrenB);
+				collision = collidesChildren(childrenA, childrenB);
+			} else if (collided && (!checkChildren || !hierachicalTest)) {
+				collision = new Collision(collided, this, target);
 			}
-			return collided;
+
+			return collision;
 		}
 		
-		private function collidesType(type:String):Collision {
+		/**
+		 * Checks collision with family type.
+		 * @param	type name of type to check against.
+		 * @param x virtual x coordinate of THIS bounding area. In case you want an offset. (ie: x + 10)
+		 * @param y virtual y coordinate of THIS bounding area.
+		 * @return collision object, maybe undefined if don't collided.
+		 */
+		private function collidesType(type:String, x:Number, y:Number) : Collision {
 			var entities:Array = [];
 			var tempHitBox:HitBox;
 			var collision:Collision;
 			
 			FP.world.getType(type, entities);
 			for each (var entity:Entity in entities) {
-				tempHitBox = HitBox.createTempHitBoxForEntity(entity, tempHitBox);
-				collision = collidesBoundingArea(tempHitBox, x, y);
-				if (collision) {
+				tempHitBox = HitBox.createHitBoxForEntity(entity, tempHitBox);
+				if (collidesBoundingArea(tempHitBox, x, y)) {
+					collision =  new Collision(true, this, tempHitBox);
+					// TODO ERROR not checking on this children
 					break;	
 				}
 			}
@@ -174,12 +197,14 @@ package com.nmoncho.collision {
 			return collision;
 		}
 		
-		private function collidesChildren(childrenA:Array, childrenB:Array):BoundingArea {
+		private function collidesChildren(childrenA:Array, childrenB:Array) : Collision {
 			// TODO do a better version of this, doing a line sweep
+			var collision:Collision;
 			for each (var ba:BoundingArea in childrenA) { // O(n ^ 2) : BAAAAAAAADDDDDD!!!
 				for each (var bb:BoundingArea in childrenB) {
-					if (ba.collides(bb)) {
-						return ba;
+					collision = ba.collides(bb);
+					if (collision) {
+						return collision;
 					}
 				}	
 			}
@@ -194,23 +219,23 @@ package com.nmoncho.collision {
 			return FP.world && FP.world.typeFirst(target); 
 		}
 
-		internal function collidesBoundingArea(target:BoundingArea, x:Number, y:Number): BoundingArea {
-			var collided:BoundingArea;
+		internal function collidesBoundingArea(target:BoundingArea, x:Number, y:Number) : Boolean {
+			var collides:Boolean;
 			if (this._class == target._class) {
-				collided = collidesClass(target, x, y);
+				collides = collidesClass(target, x, y);
 			} else if (isCircleBoxCollision(target)) {
-				collided = circleBoxCollisionCheck(target, x, y);
-			} else { // TODO check how to mix
-				
+				collides = circleBoxCollisionCheck(target, x, y);
+			} else {
+				throw new Error("Collision mix not supported " + this._class + " / " + target._class);
 			}
-			return collided;
+			return collides;
 		}
 
-		private function isCircleBoxCollision(target:BoundingArea):Boolean {
+		private function isCircleBoxCollision(target:BoundingArea) : Boolean {
 			return (this is HitCircle && target is HitBox) || (this is HitBox && target is HitCircle);
 		}
 		
-		private function circleBoxCollisionCheck(target:BoundingArea, x:Number, y:Number):BoundingArea {
+		private function circleBoxCollisionCheck(target:BoundingArea, x:Number, y:Number) : Boolean {
 			var circle:HitCircle;
 			var box:HitBox;
 			var cornerDistanceSq:Number;
@@ -229,22 +254,15 @@ package com.nmoncho.collision {
 			}
 						
 			if (distX > (box.halfWidth + circle.radius) || distY > (box.halfHeight + circle.radius)) {
-				return null;
+				return false;
 			} else if (distX <= box.halfWidth || distY <= box.halfHeight) {
-				return this;
+				return true;
 			} else {
 				cornerDistanceSq = MathUtils.sq(distX - box.halfWidth) + MathUtils.sq(distY - box.halfHeight);
-				return cornerDistanceSq <= MathUtils.sq(circle.radius) ? this : null;
+				return cornerDistanceSq <= MathUtils.sq(circle.radius);
 			}
 		}
 		
-		/**
-		 * Override this method to handle same BoundingArea class collisions
-		 */
-		internal function collidesClass(target:BoundingArea, x:Number, y:Number): BoundingArea {
-			return undefined;
-		}
-
 		/**
 		 * Gets X real coordinate of the bounding area.
 		 * If has entity owner, calculates based on owner.x
@@ -257,7 +275,6 @@ package com.nmoncho.collision {
 			} else {
 				return originX;
 			}
-			//return owner ? owner.x - originX : originX;
 		}
 
 		/**
