@@ -3,7 +3,9 @@ package com.nmoncho.collision {
 	import com.nmoncho.collision.BoundingArea;
 
 	/**
-	 * @author developer
+	 * HitBox implementation of Bounding Area (although it should be HitSquare).
+	 * The origin of the HitBox is the upper-left corner, expanding downward left.
+	 * @author nMoncho
 	 */
 	public class HitBox extends BoundingArea {
 		
@@ -20,19 +22,10 @@ package com.nmoncho.collision {
 				&& y >= top && y <= bottom;			
 		}
 		
-		override internal function collidesClass(target:BoundingArea, x:Number, y:Number): BoundingArea {
-			var collides:BoundingArea;
-			if (target is HitBox) {
-				collides = collidesClazz(HitBox(target), x, y);				
-			}
-			return collides;
-		}
-		
-		private function collidesClazz(target:HitBox, x:Number, y:Number): BoundingArea {
-			return (withinDimension(x, width, target.x, target.width) &&
-				withinDimension(y, height, target.y, target.height)) ?
-				this :
-				null;	
+		override internal function collidesClass(target:BoundingArea, x:Number, y:Number) : Boolean {
+			var hitTarget:HitBox = HitBox(target);
+			return withinDimension(x, width, hitTarget.x, hitTarget.width) &&
+				withinDimension(y, height, hitTarget.y, hitTarget.height);
 		}
 		
 		private function withinDimension(coordA:Number, dimA:Number, coordB:Number, dimB:Number):Boolean {
@@ -78,7 +71,7 @@ package com.nmoncho.collision {
 			return parentHB;
 		}
 		
-		public static function createTempHitBoxForEntity(entity:Entity, hitbox:HitBox = null):HitBox {
+		public static function createHitBoxForEntity(entity:Entity, hitbox:HitBox = null):HitBox {
 			if (hitbox) {
 				hitbox.setForEntity(entity);
 			} else {

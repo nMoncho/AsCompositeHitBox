@@ -18,21 +18,9 @@ package com.nmoncho.collision {
 			return MathUtils.sq(x - this.x) + MathUtils.sq(y - this.y) <= MathUtils.sq(radius); 
 		}
 		
-		override internal function collidesClass(target:BoundingArea, x:Number, y:Number): BoundingArea {
-			var collides:BoundingArea;
-			if (target is HitCircle) {
-				collides = collidesClazz(HitCircle(target), x, y);				
-			}
-			return collides;
-		}
-		
-		private function collidesClazz(target:HitCircle, x:Number, y:Number): BoundingArea {
-			return MathUtils.sq(target.x - x) + MathUtils.sq(target.y - y) <= MathUtils.sq(radius + target.radius) ? 
-				this : 
-				null;
-			/*return MathUtils.length(x, y, target.x, target.y) < (this.radius + target.radius) ?
-				this :
-				null;*/
+		override internal function collidesClass(target:BoundingArea, x:Number, y:Number) : Boolean {
+			var hitCircle:HitCircle = HitCircle(target);
+			return MathUtils.sq(hitCircle.x - x) + MathUtils.sq(hitCircle.y - y) <= MathUtils.sq(radius + hitCircle.radius);
 		}
 		
 		public static function createHierachicalHitCircle(children:Array, asRelative:Boolean = true, name:String = "parent_hit_circle"):HitCircle {
