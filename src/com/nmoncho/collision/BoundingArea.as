@@ -41,7 +41,7 @@ package com.nmoncho.collision {
 			if (getBoundingByName(child.name)) {
 				throw new Error("You already have a bounding area with the name " + child.name);
 			}
-			if (!asRelative) {
+			if (!asRelative) { // I think I should use this.x instead of this.originX (to handle multiple levels)
 				child.originX = originX - child.originX;
 				child.originY = originY - child.originY; 	
 			}
@@ -93,6 +93,46 @@ package com.nmoncho.collision {
 			return parent ?
 				parent.getBoundingByName(name) : 
 				(childrenName ? childrenName[name] : null);
+		}
+		
+		/**
+		 * Removes child from this Hierachical Bounding Area
+		 * @param child child to be removed.
+		 * @return child removed. (Can be used for checking removal)
+		 */
+		public function removeChild(child:BoundingArea) : BoundingArea {
+			var childRemoved:BoundingArea;
+			var idx:int = children.indexOf(child);
+			if (idx >= 0) { // I think I should use this.x instead of this.originX (to handle multiple levels)
+				childRemoved = children.splice(idx, 1)[0];
+				childRemoved.originX = originX - childRemoved.originX;
+				childRemoved.originY = originY - childRemoved.originY;	
+				childRemoved.parent = null;
+				childRemoved.owner = null;
+				removeChildName(childRemoved);
+			}
+			return childRemoved;
+		}
+		
+		/**
+		 * Removes the child name for fast look up.
+		 * @param child child to be removed.
+		 */
+		private function removeChildName(child:BoundingArea):void {
+			if (parent) {
+				parent.removeChildName(child);
+			} else if (childrenName) {
+				delete childrenName[child.name];
+			}
+		}
+		
+		/**
+		 * Removes child from this Hierachical Bounding Area by its name.
+		 * @param childName child's name to remove.
+		 * @return child removed.
+		 */
+		public function removeChildByName(childName:String) : BoundingArea {
+			return removeChild(getBoundingByName(childName));
 		}
 
 		/**
@@ -162,8 +202,8 @@ package com.nmoncho.collision {
 			}
 			
 			if (collided && checkChildren && hierachicalTest) { // check on children
-				var childrenA:Array = isLeaf ? [this] : children, 
-					childrenB:Array = BoundingArea(target).isLeaf ? [target] : BoundingArea(target).children;
+				var childrenA:Array = isLeaf ? [this] : children, // TODO not taking into account if B is not BA.
+					childrenB:Array = target is BoundingArea  && !BoundingArea(target).isLeaf ? BoundingArea(target).children : [target];
 				collision = collidesChildren(childrenA, childrenB);
 			} else if (collided && (!checkChildren || !hierachicalTest)) {
 				collision = new Collision(collided, this, target);

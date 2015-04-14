@@ -15,8 +15,8 @@ package com.nmoncho.collision {
 		
 		public function Main() {
 			super(800, 600, 60, false);
-			//CONFIG::DEBUG {
-			CONFIG::debug {
+			CONFIG::DEBUG {
+			//CONFIG::debug {
 				//BoundingAreaDebugger.enableDebuggin();
 				runTests();
 			}

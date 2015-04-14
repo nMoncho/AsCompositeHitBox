@@ -36,9 +36,8 @@ package com.nmoncho.collision.debug {
 			//this.boundingArea = boundingArea != null ? boundingArea : new HitCircle(24, "hit_circle", -24, -16, this);
 			this.boundingArea.owner = this;
 			this.npc = npc;
-			trace(x);
-			trace(this.boundingArea.x);
-			trace(this.boundingArea.originX);
+			width = 48;
+			height = 32;
 		}
 
 		override public function update() : void {

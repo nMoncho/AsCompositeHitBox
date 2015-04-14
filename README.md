@@ -10,9 +10,10 @@ Our rationale is that collision could be handled as hierachical bounding areas (
 Currently we try to handle entity-entity and entity-type collisions, as the current version of Flashpunk does. But we also the collisions with the bounding areas introduced by this library in the same entry point.
 
 ## Roadmap
-1. Collision queries.
-2. Spatial partitioning.
-3. TBD.
+1. Point Inclusion (as is, we don't handle virtual coords for isPointInside check, also add tests for this).
+2. Collision queries.
+3. Spatial partitioning.
+4. TBD.
 
 ## TODO
 1. Improve readme section.
