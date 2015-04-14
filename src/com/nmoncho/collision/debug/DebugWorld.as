@@ -29,6 +29,19 @@ package com.nmoncho.collision.debug {
 		public var compoundHB4:HitBox = new HitBox(30, 20, "compound_hb_2", 550, 350);
 		public var compositeHC:HitCircle = HitCircle.createHierachicalHitCircle([compoundHB3, compoundHB4], false);
 		
+		var center:HitBox = new HitBox(20, 20, "center", 8, 8);
+		var upperLeft:HitBox = new HitBox(15, 15, "upperLeft");
+		var upperRight:HitBox = new HitBox(15, 15, "upperRight", 20, 0);
+		var downLeft:HitBox = new HitBox(15, 15, "downLeft", 0, 20);
+		var downRight:HitBox = new HitBox(15, 15, "downRight", 20, 20);
+		
+		var hHB:HitBox = HitBox.createHierachicalHitBox([center, upperLeft, upperRight, downLeft, downRight], false);
+		
+		var circle_01:HitCircle = new HitCircle(20, "top", 200, 400);
+		var circle_02:HitCircle = new HitCircle(20, "left", 180, 440);
+		var circle_03:HitCircle = new HitCircle(20, "right", 222, 440);
+		var hHC:HitCircle = HitCircle.createHierachicalHitCircle([circle_01, circle_02, circle_03], false);
+		
 		private const collisionInfos:Array = [];
 		
 		public function DebugWorld() {
@@ -42,12 +55,15 @@ package com.nmoncho.collision.debug {
 			player.x = FP.width / 2;
 			player.y = FP.height / 2;
 			npc1.x = npc1.y = 300;
-			
+
 			collisionInfos.push(new CollisionInfo(player.boundingArea, this));
 			collisionInfos.push(new CollisionInfo(compositeHB, this));
 			collisionInfos.push(new CollisionInfo(npc1.boundingArea, this));
 			collisionInfos.push(new CollisionInfo(worldHitBox, this));
 			collisionInfos.push(new CollisionInfo(compositeHC, this));
+			collisionInfos.push(new CollisionInfo(hHB, this));
+			collisionInfos.push(new CollisionInfo(hHC, this));
+			hHB.setOrigin(210, 210);
 		}
 		
 		override public function update():void {

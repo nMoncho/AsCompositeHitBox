@@ -59,6 +59,22 @@ package com.nmoncho.collision {
 			
 			return parentHC;
 		}
+		
+		/**
+		 * Sets this hitcircle for an Entity.
+		 * @param entity entity to set from.
+		 * @param useEntityValues [optional] use entity's width, height... to fit the hitcircle.
+		 * @return this instance.
+		 */
+		public function setForEntity(entity:Entity, useEntityValues:Boolean = true) : HitCircle {
+			owner = entity;
+			if (useEntityValues) {
+				originX = -entity.width / 2;
+				originY = -entity.height / 2;
+				radius = MathUtils.length(0, 0, entity.width / 2, entity.height / 2);
+			}
+			return this;
+		}
 
 		/**
 		 * The leftmost position.
@@ -79,5 +95,9 @@ package com.nmoncho.collision {
 		 * The bottommost position.
 		 */
 		override public function get bottom():Number { return y + radius; }
+		
+		public function toString():String {
+			return "HitCircle(" + name + "){r: " + radius + ", x: " + x + ", y: " + y + "}";
+		}
 	}
 }
