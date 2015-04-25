@@ -9,12 +9,12 @@ package com.nmoncho.collision {
 	 */
 	public class HitBox extends BoundingArea {
 		
-		public var width:Number, height:Number;
+		public var _width:Number, _height:Number;
 		
 		public function HitBox(width:Number = 0, height:Number = 0, name:String = "hit_box", originX:Number = 0, originY:Number = 0, owner:Entity = null):void {
 			super(name, originX, originY, owner);
-			this.width = width;
-			this.height = height;
+			_width = width;
+			_height = height;
 		}
 
 		override public function isPointInside(x : Number, y : Number) : Boolean {
@@ -93,26 +93,22 @@ package com.nmoncho.collision {
 
 			return hitbox;
 		}
+				
+		override public function get width():int { return _width; }
 		
-		/**
-		 * Half the Entity's width.
-		 */
-		public function get halfWidth():Number { return width / 2; }
+		override public function set width(val:int):void { _width = val; }
 		
-		/**
-		 * Half the Entity's height.
-		 */
-		public function get halfHeight():Number { return height / 2; }
+		override public function get height():int { return _height; }
 		
-		/**
-		 * The center x position of the hitbox.
-		 */
-		public function get centerX():Number { return x + width / 2; }
+		override public function set height(val:int):void { _height = val; }
 		
-		/**
-		 * The center y position of the hitbox.
-		 */
-		public function get centerY():Number { return y + height / 2; }
+		override public function get halfWidth():Number { return width / 2; }
+		
+		override public function get halfHeight():Number { return height / 2; }
+		
+		override public function get centerX():Number { return x + width / 2; }
+		
+		override public function get centerY():Number { return y + height / 2; }
 
 		override public function get right():Number { return x + width; }
 
