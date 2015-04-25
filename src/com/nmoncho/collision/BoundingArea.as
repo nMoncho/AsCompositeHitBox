@@ -332,6 +332,20 @@ package com.nmoncho.collision {
 		}
 		
 		/**
+		 * Sets the Entity's hitbox properties.
+		 * @param	width		Width of the hitbox.
+		 * @param	height		Height of the hitbox.
+		 * @param	originX		X origin of the hitbox.
+		 * @param	originY		Y origin of the hitbox.
+		 */
+		public function setHitbox(width:int = 0, height:int = 0, originX:int = 0, originY:int = 0):void {
+			this.originX = originX;
+			this.originY = originY;
+			this.width = width;
+			this.height = height;
+		}
+		
+		/**
 		 * The leftmost position.
 		 */
 		public function get left():Number { return x; }
@@ -350,6 +364,40 @@ package com.nmoncho.collision {
 		 * The bottommost position.
 		 */
 		public function get bottom():Number { return y; }
+		
+		/**
+		 * Half the Entity's width.
+		 */
+		public function get halfWidth():Number { throw new Error("Unsupported Operation"); }
+
+		/**
+		 * Half the Entity's height.
+		 */
+		public function get halfHeight():Number { throw new Error("Unsupported Operation"); }
+		
+		/**
+		 * The center x position of the Entity's hitbox.
+		 */
+		public function get centerX():Number { throw new Error("Unsupported Operation"); }
+		
+		/**
+		 * The center y position of the Entity's hitbox.
+		 */
+		public function get centerY():Number { throw new Error("Unsupported Operation"); }
+		
+		/**
+		 * Width of the Entity's hitbox.
+		 */
+		public function get width():int { throw new Error("Unsupported Operation"); }
+		
+		public function set width(val:int):void { throw new Error("Unsupported Operation"); }
+		
+		/**
+		 * Height of the Entity's hitbox.
+		 */
+		public function get height():int { throw new Error("Unsupported Operation"); }
+		
+		public function set height(val:int):void { throw new Error("Unsupported Operation"); }
 
 		/**
 		 * Sets the origin coordinates of the bounding area.

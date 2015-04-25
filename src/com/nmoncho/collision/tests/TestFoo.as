@@ -31,6 +31,12 @@ package com.nmoncho.collision.tests
 			addTest(new BoundingAreaTests("testRemoveChild"));
 			addTest(new BoundingAreaTests("testRemoveChildByName"));
 			addTest(new BoundingAreaTests("testGetBoundingByName"));
+			
+			addTest(new CollidableEntityTests("testConstructor_NoBoundingArea"));
+			addTest(new CollidableEntityTests("testConstructor_WithHitBox"));
+			addTest(new CollidableEntityTests("testConstructor_WithHitCircle"));
+			addTest(new CollidableEntityTests("testConstructor_WithHitCircleLiteral"));
+			addTest(new CollidableEntityTests("testConstructor_WithHitBoxLiteral"));
 		}
 
 	}
