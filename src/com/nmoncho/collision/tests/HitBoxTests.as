@@ -85,9 +85,7 @@ package com.nmoncho.collision.tests
 		public function testHitBoxSameClassCollision():void {
 			var hierachical:HitBox = createHierachicalHitBox();
 			var center:HitBox = HitBox(hierachical.getBoundingByName("center"));
-			trace("-> " + center.x);
 			hierachical.removeChild(center);
-			trace("-> " + center.x);
 			var cornerHitBoxes:Array = hierachical.children;
 			// All Collides
 			cornerHitBoxes.forEach(function(val:HitBox, idx:int, a:Array):void {
