@@ -1,5 +1,7 @@
 package com.nmoncho.collision.tests 
 {
+	import com.nmoncho.collision.HitBox;
+	import avmplus.getQualifiedClassName;
 	import asunit.framework.TestSuite;
 	
 	/**
@@ -37,6 +39,13 @@ package com.nmoncho.collision.tests
 			addTest(new CollidableEntityTests("testConstructor_WithHitCircle"));
 			addTest(new CollidableEntityTests("testConstructor_WithHitCircleLiteral"));
 			addTest(new CollidableEntityTests("testConstructor_WithHitBoxLiteral"));
+			
+			addTest(new ConsoleTests("testAddDebuggableBoundingArea"));
+			addTest(new ConsoleTests("testRemoveDebuggableBoundingArea"));
+			addTest(new ConsoleTests("testCreatePropertyAccessor"));
+			addTest(new ConsoleTests("testCreatePropertyAccessor_Undefined"));
+			addTest(new ConsoleTests("testGetOptions"));
+			addTest(new ConsoleTests("testSetOptions"));
 		}
 
 	}
